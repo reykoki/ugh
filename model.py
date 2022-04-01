@@ -6,15 +6,15 @@ from torch.nn.utils.weight_norm import weight_norm
 
 
 class VizWizNet(nn.Module):
-    def __init__(self, dataset, embed_dim, num_hid):
+    def __init__(self, dataset, embed_dim, num_hid, dropout):
         super(VizWizNet, self).__init__()
-        self.w_emb      = WordEmbedding(dataset.num_tokens, embed_dim, 0.0)
-        self.q_emb      = QuestionEmbedding(embed_dim, num_hid, 1, 0.0)
+        self.w_emb      = WordEmbedding(dataset.num_tokens, embed_dim, dropout)
+        self.q_emb      = QuestionEmbedding(embed_dim, num_hid, 1, dropout)
         self.v_att      = Attention(dataset.num_img_feats, self.q_emb.num_hid, num_hid)
         self.q_net      = FCNN(num_hid, num_hid)
         self.v_net      = FCNN(dataset.num_img_feats, num_hid)
         self.classifier = Classifier(num_hid, 2 * num_hid,
-                                dataset.num_answers, 0.5)
+                                dataset.num_answers, dropout)
 
     def forward(self, v, q):
         w_emb = self.w_emb(q)
